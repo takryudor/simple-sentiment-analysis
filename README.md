@@ -1,4 +1,5 @@
-# simple-sentiment-analysis
+<h1 align="center">simple-sentiment-analysis</h1>
+<p align="center">Multilingual sentiment analysis API with FastAPI + Transformers</p>
 
 ## Student info
 
