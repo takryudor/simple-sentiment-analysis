@@ -7,6 +7,7 @@ from .services import get_classifier, is_model_loaded, predict_sentiment
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     get_classifier()  # preload on startup
+    print("📖 Swagger Documentation: http://localhost:8000/docs")
     yield
 
 app = FastAPI(
@@ -139,7 +140,7 @@ def preload_model():
     response_model=PredictResponse,
     summary="Dự đoán cảm xúc",
     description=(
-        "Nhận vào text và trả về nhãn cảm xúc cùng độ tin cậy. Các nhãn có thể gồm: `Very Negative`/`Negative`/`Neutral`/`Positive`/`Very Positive`."
+        "Nhận vào text và trả về nhãn cảm xúc cùng độ tin cậy, là mức độ bạn có thể tin cậy vào model. Các nhãn có thể gồm: `Very Negative`/`Negative`/`Neutral`/`Positive`/`Very Positive`."
     ),
     responses={
         200: {
