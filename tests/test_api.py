@@ -1,18 +1,22 @@
+# Sử dụng thư viện requests để gửi HTTP requests đến API và kiểm tra các endpoint
 import requests
 
+# Định nghĩa URL cơ bản của API và thời gian chờ tối đa cho mỗi request
 BASE_URL = "http://localhost:8000"
 TIMEOUT = 20
 
+# Các hàm test cho từng endpoint của API, bao gồm kiểm tra sức khỏe hệ thống, 
+# endpoint gốc và endpoint dự đoán cảm xúc với các trường hợp khác nhau 
+# (tiếng Anh, tiếng Việt, trung tính, lỗi đầu vào, v.v.)
 def test_health():
     """Test health check endpoint"""
     print("\n=== Test 1: Health Check ===")
     response = requests.get(f"{BASE_URL}/health", timeout=TIMEOUT)
     print(f"Status: {response.status_code}")
     print(f"Response: {response.json()}")
-    assert response.status_code == 200
-    assert response.json()["status"] == "healthy"
+    assert response.status_code == 200 # Sẽ ném AssertionError nếu API không trả về status code 200
+    assert response.json()["status"] == "healthy" # Sẽ ném AssertionError nếu API không trả về status "healthy"
     print("✓ PASSED")
-
 
 def test_root():
     """Test root endpoint"""
@@ -20,10 +24,9 @@ def test_root():
     response = requests.get(f"{BASE_URL}/", timeout=TIMEOUT)
     print(f"Status: {response.status_code}")
     print(f"Response: {response.json()}")
-    assert response.status_code == 200
+    assert response.status_code == 200 
     assert "message" in response.json()
     print("✓ PASSED")
-
 
 def test_predict_english_positive():
     """Test predict endpoint with English positive text"""
@@ -40,7 +43,6 @@ def test_predict_english_positive():
     assert 0 <= result["confidence"] <= 1
     print("✓ PASSED")
 
-
 def test_predict_english_negative():
     """Test predict endpoint with English negative text"""
     print("\n=== Test 4: English Negative Text ===")
@@ -54,7 +56,6 @@ def test_predict_english_negative():
     assert "label" in result
     assert "confidence" in result
     print("✓ PASSED")
-
 
 def test_predict_vietnamese_positive():
     """Test predict endpoint with Vietnamese positive text"""
@@ -70,7 +71,6 @@ def test_predict_vietnamese_positive():
     assert "confidence" in result
     print("✓ PASSED")
 
-
 def test_predict_vietnamese_negative():
     """Test predict endpoint with Vietnamese negative text"""
     print("\n=== Test 6: Vietnamese Negative Text ===")
@@ -85,7 +85,6 @@ def test_predict_vietnamese_negative():
     assert "confidence" in result
     print("✓ PASSED")
 
-
 def test_predict_neutral():
     """Test predict endpoint with neutral text"""
     print("\n=== Test 7: Neutral Text ===")
@@ -99,7 +98,6 @@ def test_predict_neutral():
     assert "label" in result
     assert "confidence" in result
     print("✓ PASSED")
-
 
 def test_predict_empty_text():
     """Test predict endpoint with empty text (should fail)"""
@@ -124,7 +122,6 @@ def test_predict_whitespace_only():
     assert response.status_code == 400
     print("✓ PASSED (Error handled correctly)")
 
-
 def test_predict_long_text():
     """Test predict endpoint with longer text"""
     print("\n=== Test 10: Long Text ===")
@@ -139,7 +136,7 @@ def test_predict_long_text():
     assert "confidence" in result
     print("✓ PASSED")
 
-
+# Hàm để chạy tất cả các test đã định nghĩa ở trên, đếm số lượng test passed và failed,
 def run_all_tests():
     """Run all tests"""
     print("=" * 60)
@@ -183,7 +180,9 @@ def run_all_tests():
     
     return failed == 0
 
-
+# Chạy tất cả các test khi thực thi file này,
+# và trả về exit code 0 nếu tất cả test đều passed,
+# ngược lại trả về exit code 1 nếu có bất kỳ test nào failed
 if __name__ == "__main__":
     success = run_all_tests()
     exit(0 if success else 1)

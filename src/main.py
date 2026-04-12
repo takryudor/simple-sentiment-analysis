@@ -1,15 +1,17 @@
+# Thư viện cần thiết
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, ConfigDict, Field
 from contextlib import asynccontextmanager
-
 from .services import get_classifier, is_model_loaded, predict_sentiment
 
+# Khởi tạo FastAPI app với lifespan để preload model khi khởi động
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     get_classifier()  # preload on startup
     print("📖 Swagger Documentation: http://localhost:8000/docs")
     yield
 
+# Tạo instance FastAPI với metadata và lifespan
 app = FastAPI(
     title="Simple Sentiment Analysis API",
     description=(
@@ -25,7 +27,7 @@ app = FastAPI(
     redoc_url="/redoc",
 lifespan=lifespan)
 
-
+# Ví dụ phản hồi dạng JSON cho tài liệu Swagger
 ROOT_RESPONSE_EXAMPLE = {
     "message": "Chào mừng bạn đến với API phân tích cảm xúc đa ngôn ngữ sử dụng Hugging Face, nơi bạn có thể kiểm tra trạng thái hệ thống và dự đoán cảm xúc của văn bản chỉ với vài bước đơn giản."
 }
@@ -52,6 +54,8 @@ VALIDATION_ERROR_EXAMPLE = {
     ]
 }
 
+# Định nghĩa các model Pydantic cho request và response
+# Model request cho endpoint /predict
 class TextRequest(BaseModel):
     model_config = ConfigDict(
         json_schema_extra={
@@ -65,7 +69,7 @@ class TextRequest(BaseModel):
         examples=["Tôi rất yêu thích sản phẩm này!"],
     )
 
-
+# Định nghĩa model phản hồi cho endpoint /predict
 class PredictResponse(BaseModel):
     model_config = ConfigDict(
         json_schema_extra={"example": PREDICT_RESPONSE_EXAMPLE}
@@ -75,7 +79,7 @@ class PredictResponse(BaseModel):
     label: str = Field(..., description="Nhãn cảm xúc dự đoán")
     confidence: float = Field(..., ge=0, le=1, description="Độ tin cậy từ 0 đến 1")
 
-
+# Định nghĩa model phản hồi cho endpoint /health
 class HealthResponse(BaseModel):
     model_config = ConfigDict(
         json_schema_extra={"example": HEALTH_RESPONSE_EXAMPLE}
@@ -84,7 +88,7 @@ class HealthResponse(BaseModel):
     status: str
     model_loaded: bool
 
-
+# Định nghĩa model phản hồi cho endpoint /
 class RootResponse(BaseModel):
     model_config = ConfigDict(
         json_schema_extra={"example": ROOT_RESPONSE_EXAMPLE}
@@ -92,7 +96,8 @@ class RootResponse(BaseModel):
 
     message: str
 
-
+# Định nghĩa các endpoint của API
+# Endpoint gốc trả về thông điệp chào mừng và giới thiệu ngắn gọn về hệ thống
 @app.get(
     "/",
     summary="Giới thiệu ngắn gọn về hệ thống",
@@ -109,10 +114,12 @@ class RootResponse(BaseModel):
         }
     },
 )
+
 def read_root():
     return ROOT_RESPONSE_EXAMPLE
 
 
+# Endpoint kiểm tra sức khỏe hệ thống, trả về trạng thái API và cho biết model đã được load hay chưa
 @app.get(
     "/health",
     response_model=HealthResponse,
@@ -132,13 +139,11 @@ def read_root():
 def health_check():
     return {"status": "healthy", "model_loaded": is_model_loaded()}
 
-def preload_model():
-    get_classifier()
-
+# Endpoint dự đoán cảm xúc từ văn bản đầu vào, trả về nhãn cảm xúc và độ tin cậy
 @app.post(
     "/predict",
     response_model=PredictResponse,
-    summary="Dự đoán cảm xúc",
+    summary="Dự đoán cảm xúc qua văn bản",
     description=(
         "Nhận vào text và trả về nhãn cảm xúc cùng độ tin cậy, là mức độ bạn có thể tin cậy vào model. Các nhãn có thể gồm: `Very Negative`/`Negative`/`Neutral`/`Positive`/`Very Positive`."
     ),
