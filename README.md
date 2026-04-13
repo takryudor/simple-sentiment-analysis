@@ -238,7 +238,7 @@ python tests/test_api.py
 
 ## Video demo
 
--> **Youtube video**: [simple-sentiment-analysis](https://youtube.com)
+-> **Youtube video**: [simple-sentiment-analysis](https://youtu.be/7rjviHw9EEU?si=hhwoAGyCbYTQmf7a)
 
 ## Troubleshooting
 
